@@ -1,12 +1,14 @@
 import { Module } from "@nestjs/common";
-import { ChatController } from "./chat.controller";
+import { ThreadController } from "./controller/thread.controller";
 import { ChatApplicationModule } from "../../application/chat-application.module";
+import { CqrsModule } from "@nestjs/cqrs";
 
 @Module({
     imports: [
+        CqrsModule,
         ChatApplicationModule,
     ],
-    controllers: [ChatController],
+    controllers: [ThreadController],
     providers: []
 })
 export class ChatHttpModule {}
