@@ -13,7 +13,7 @@ export class CreatedThreadDto {
     @ApiProperty()
     object!: 'thread';
 
-    private constructor(
+    constructor(
         id: string,
         created_at: number,
         metadata: unknown | null,
@@ -23,19 +23,5 @@ export class CreatedThreadDto {
         this.created_at = created_at;
         this.metadata = metadata;
         this.object = object;
-    }
-
-    static create(
-        id: string,
-        created_at: number,
-        metadata: unknown | null,
-        object: 'thread',
-    ): CreatedThreadDto {
-        return new CreatedThreadDto(
-            id,
-            created_at,
-            metadata,
-            object
-        );
     }
 }

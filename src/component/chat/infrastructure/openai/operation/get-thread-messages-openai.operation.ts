@@ -1,25 +1,25 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import OpenAI from "openai";
-import { Thread } from "openai/resources/beta/threads/threads";
+import { MessagesPage } from "openai/resources/beta/threads/messages";
 import { Either, Left, Right } from "purify-ts";
-import { CreateThreadError } from "src/component/chat/domain/error/create-thread.error";
-import { CreateThreadOperation } from "src/component/chat/domain/operation/create-thread.operation";
+import { GetThreadMessagesError } from "src/component/chat/domain/error/get-thread-messages.error";
+import { GetThreadMessagesOperation } from "src/component/chat/domain/operation/get-thread-messages.operation";
 
 @Injectable()
-export class CreateThreadOpenAIOperation implements CreateThreadOperation {   
+export class GetThreadMessagesOpenAIOperation implements GetThreadMessagesOperation {   
     constructor(
         private readonly configService: ConfigService,
     ) {}
 
-    async execute(messages: any): Promise<Either<CreateThreadError, Thread>> {
+    async execute(threadId: string): Promise<Either<GetThreadMessagesError, MessagesPage>> {
         const provider = new OpenAI({
             apiKey: this.configService.getOrThrow('openai.api_key')
         });
 
         try {
-            const thread = await provider.beta.threads.create({ messages });
-            return Right(thread);
+            const messages = await provider.beta.threads.messages.list(threadId);
+            return Right(messages);
         } catch (err) {
             if (err instanceof OpenAI.APIError) {
                 switch (err.code) {

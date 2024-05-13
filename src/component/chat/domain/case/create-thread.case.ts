@@ -10,6 +10,7 @@ export class CreateThreadCase {
         private readonly createThreadOperation: CreateThreadOperation,
     ) {}
 
+    // TBD messages in create-thread cant be any
     async execute(messages: any): Promise<Either<CreateThreadError, Thread>> {
         const resultCreateThread = await this.createThreadOperation.execute(messages);
         if (resultCreateThread.isLeft()) {

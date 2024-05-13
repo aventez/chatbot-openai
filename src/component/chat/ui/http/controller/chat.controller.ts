@@ -5,27 +5,30 @@ import { CreateThreadDto } from "../dto/create-thread.dto";
 import { CreatedThreadDto } from "../dto/created-thread.dto";
 import { CreateThreadCommand } from "src/component/chat/application/create-thread/create-thread.command";
 import { InsufficientBalanceException } from "../exception/insufficient-balance.exception";
+import { AnswerChatDto } from "../dto/answer-chat.dto";
+import { AnswerChatResponseDto } from "../dto/answer-chat-response.dto";
+import { AnswerChatCommand } from "src/component/chat/application/answer-chat/answer-chat.command";
 
-@ApiTags('Threads')
-@Controller('threads')
-export class ThreadController {
+@ApiTags('Chat')
+@Controller('chat')
+export class ChatController {
     constructor(
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
     ) {}
 
-    @ApiBody({ type: CreateThreadDto, required: false })
+    @ApiBody({ type: AnswerChatDto, required: false })
     @ApiResponse({
-        description: 'returns new thread'
+        description: 'default action for conversation'
     })
     @Post('')
-    async createThreadAction(
-        @Body() payload?: CreateThreadDto,
-    ): Promise<CreatedThreadDto> {
-        const command = new CreateThreadCommand(payload.messages);
-        const createThreadResult = await this.commandBus.execute(command);
+    async answerChatAction(
+        @Body() payload?: AnswerChatDto,
+    ): Promise<AnswerChatResponseDto> {
+        const command = new AnswerChatCommand(payload);
+        const answerChatResult = await this.commandBus.execute(command);
 
-        const thread = createThreadResult.caseOf({
+        return answerChatResult.caseOf({
             Left: (error): undefined => {
                 switch(error) {
                     case 'INSUFFICIENT_BALANCE':
@@ -34,16 +37,7 @@ export class ThreadController {
                         throw new InternalServerErrorException();
                 }
             },
-            Right: (thread) => {
-                return thread;
-            }
+            Right: (thread) => thread,
         })
-
-        return new CreatedThreadDto(
-            thread.id,
-            thread.created_at,
-            thread.metadata,
-            thread.object,  
-        );
     }
 }

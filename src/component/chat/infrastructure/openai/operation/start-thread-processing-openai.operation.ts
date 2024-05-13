@@ -1,25 +1,28 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import OpenAI from "openai";
+import { Run } from "openai/resources/beta/threads/runs/runs";
 import { Thread } from "openai/resources/beta/threads/threads";
 import { Either, Left, Right } from "purify-ts";
-import { CreateThreadError } from "src/component/chat/domain/error/create-thread.error";
-import { CreateThreadOperation } from "src/component/chat/domain/operation/create-thread.operation";
+import { StartThreadProcessingError } from "src/component/chat/domain/error/start-thread-processing.error";
+import { StartThreadProcessingOperation } from "src/component/chat/domain/operation/start-thread-processing.operation";
 
 @Injectable()
-export class CreateThreadOpenAIOperation implements CreateThreadOperation {   
+export class StartThreadProcessingOpenAIOperation implements StartThreadProcessingOperation {   
     constructor(
         private readonly configService: ConfigService,
     ) {}
 
-    async execute(messages: any): Promise<Either<CreateThreadError, Thread>> {
+    async execute(threadId: string): Promise<Either<StartThreadProcessingError, Run>> {
         const provider = new OpenAI({
             apiKey: this.configService.getOrThrow('openai.api_key')
         });
 
         try {
-            const thread = await provider.beta.threads.create({ messages });
-            return Right(thread);
+            const run = await provider.beta.threads.runs.create(threadId, {
+                assistant_id: this.configService.getOrThrow('openai.assistant_id'),
+            });
+            return Right(run);
         } catch (err) {
             if (err instanceof OpenAI.APIError) {
                 switch (err.code) {
