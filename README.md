@@ -14,6 +14,10 @@ cp .env.example .env
 npm i
 ```
 
+## Flowchart
+
+![Flowchart](https://i.imgur.com/AejzvKq.png)
+
 ## Running
 
 ### Locally
